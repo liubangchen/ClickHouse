@@ -108,6 +108,10 @@ void PocoHTTPClient::MakeRequestInternal(
 {
     Poco::Logger * log = &Poco::Logger::get("AWSClient");
 
+    if(request.GetUri().GetPath().size()==0)
+    {
+      request.GetUri().SetPath("/");
+    }
     auto uri = request.GetUri().GetURIString();
     LOG_DEBUG(log, "Make request to: {}", uri);
 

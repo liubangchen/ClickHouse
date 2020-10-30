@@ -123,3 +123,6 @@ website/package-lock.json
 
 # Toolchains
 /cmake/toolchain/*
+
+.dir-locals.el
+Debug/
