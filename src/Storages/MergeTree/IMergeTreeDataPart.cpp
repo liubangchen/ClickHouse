@@ -825,7 +825,7 @@ void IMergeTreeDataPart::remove() const
       */
 
     String from = storage.relative_data_path + relative_path;
-    String to = storage.relative_data_path + "delete_tmp_" + name;
+    String to = storage.relative_data_path + "delete_tmp_" + name+"/";
     // TODO directory delete_tmp_<name> is never removed if server crashes before returning from this function
 
     if (volume->getDisk()->exists(to))
@@ -834,7 +834,7 @@ void IMergeTreeDataPart::remove() const
 
         try
         {
-            volume->getDisk()->removeRecursive(to + "/");
+            volume->getDisk()->removeRecursive(to);
         }
         catch (...)
         {
@@ -857,7 +857,7 @@ void IMergeTreeDataPart::remove() const
     if (checksums.empty())
     {
         /// If the part is not completely written, we cannot use fast path by listing files.
-        volume->getDisk()->removeRecursive(to + "/");
+        volume->getDisk()->removeRecursive(to);
     }
     else
     {
@@ -870,16 +870,16 @@ void IMergeTreeDataPart::remove() const
     #    pragma GCC diagnostic ignored "-Wunused-variable"
     #endif
             for (const auto & [file, _] : checksums.files)
-                volume->getDisk()->remove(to + "/" + file);
+                volume->getDisk()->remove(to + file);
     #if !__clang__
     #    pragma GCC diagnostic pop
     #endif
 
             for (const auto & file : {"checksums.txt", "columns.txt"})
-                volume->getDisk()->remove(to + "/" + file);
+                volume->getDisk()->remove(to + file);
 
-            volume->getDisk()->removeIfExists(to + "/" + DEFAULT_COMPRESSION_CODEC_FILE_NAME);
-            volume->getDisk()->removeIfExists(to + "/" + DELETE_ON_DESTROY_MARKER_FILE_NAME);
+            volume->getDisk()->removeIfExists(to  + DEFAULT_COMPRESSION_CODEC_FILE_NAME);
+            volume->getDisk()->removeIfExists(to  + DELETE_ON_DESTROY_MARKER_FILE_NAME);
 
             volume->getDisk()->remove(to);
         }
@@ -889,7 +889,7 @@ void IMergeTreeDataPart::remove() const
 
             LOG_ERROR(storage.log, "Cannot quickly remove directory {} by removing files; fallback to recursive removal. Reason: {}", fullPath(volume->getDisk(), to), getCurrentExceptionMessage(false));
 
-            volume->getDisk()->removeRecursive(to + "/");
+            volume->getDisk()->removeRecursive(to);
         }
     }
 }
